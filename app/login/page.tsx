@@ -1,23 +1,20 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 import { SubmitButton } from "./submit-button";
 import BigHeading from "@/components/BigHeading";
+import { getUser } from "@/app/data/auth";
 
 export default async function Login({
     searchParams,
 }: {
     searchParams: { message: string };
 }) {
-    const supabase = createClient();
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getUser();
 
     if (user) {
-        return redirect("/protected");
+        return redirect("/", RedirectType.replace);
     }
 
     const googleLogin = async () => {
