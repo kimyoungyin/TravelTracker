@@ -10,3 +10,8 @@
 -   Prisma
 -   PostSQL
 -   Supabase
+
+## 사용 모듈
+
+-   [ExifReader](https://github.com/mattiasw/ExifReader)
+-   [browser-image-compression](https://www.npmjs.com/package/browser-image-compression)

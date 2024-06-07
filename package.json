@@ -10,6 +10,8 @@
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "autoprefixer": "10.4.17",
+    "browser-image-compression": "^2.0.2",
+    "exifreader": "^4.23.2",
     "geist": "^1.2.1",
     "next": "latest",
     "postcss": "8.4.33",
