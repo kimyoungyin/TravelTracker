@@ -5,15 +5,29 @@ import { ChangeEvent } from "react";
 interface Props {
     toPrevStep: () => void;
     onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    isLoading: boolean;
+    currentPhotoCount: number;
 }
 
-export default ({ toPrevStep, onChange }: Props) => {
+export default ({
+    toPrevStep,
+    onChange,
+    isLoading,
+    currentPhotoCount,
+}: Props) => {
     return (
         <div>
             <button onClick={toPrevStep}>이전 단계</button>
             <label htmlFor="photos">
-                사진 업로드하기(최대 50)
+                {isLoading
+                    ? "이미지 불러오는 중..."
+                    : `사진 업로드하기(${
+                          currentPhotoCount === 0
+                              ? "최대 50개"
+                              : `현재 ${currentPhotoCount}/50`
+                      })`}
                 <input
+                    disabled={isLoading}
                     onChange={onChange}
                     id="photos"
                     type="file"

@@ -12,7 +12,7 @@ export default ({ toNextStep, ...inputProps }: Props) => {
     return (
         <div>
             Title
-            <input {...inputProps} />;
+            <input {...inputProps} />
             {inputProps.value.length > 0 && (
                 <button onClick={toNextStep}>다음 단계</button>
             )}
