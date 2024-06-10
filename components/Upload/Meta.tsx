@@ -1,7 +1,8 @@
 "use client";
 
 import { PhotoWithExif } from "@/components/Upload/Steps";
-import { useState } from "react";
+import { APIProvider, AdvancedMarker, Map } from "@vis.gl/react-google-maps";
+import { useEffect, useState } from "react";
 
 export default ({
     photosWithExif,
@@ -20,7 +21,16 @@ export default ({
         longtitude: number;
     } | null>(null);
     const [searchValue, setSearchValue] = useState("");
-    const [isLocationSearching, setIsLocationSearching] = useState(true);
+    const [isLocationSearching, setIsLocationSearching] = useState(false);
+    const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 });
+
+    const handleReferencePhotoClick = (index: number) => {
+        setPrevPhotoIndex(index);
+        setCurrentPosition({
+            lat: photosWithExif[index].latitude!,
+            lng: photosWithExif[index].longtitude!,
+        });
+    };
 
     if (editingIndex !== null) {
         if (isLocationSearching) {
@@ -42,6 +52,26 @@ export default ({
                             />
                             <button>검색</button>
                             {/* 지도 위치 */}
+                            <APIProvider
+                                apiKey={
+                                    process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!
+                                }
+                            >
+                                <div className="w-[400px] h-[400px]">
+                                    <Map
+                                        zoom={15}
+                                        center={currentPosition}
+                                        mapId={
+                                            process.env
+                                                .NEXT_PUBLIC_GOOGLE_MAP_SEARCH_ID
+                                        }
+                                    >
+                                        <AdvancedMarker
+                                            position={currentPosition}
+                                        />
+                                    </Map>
+                                </div>
+                            </APIProvider>
                         </div>
                     </div>
                     <button onClick={() => setIsLocationSearching(false)}>
@@ -79,7 +109,7 @@ export default ({
                                     photosWithExif.map((obj, index) => (
                                         <img
                                             onClick={() =>
-                                                setPrevPhotoIndex(index)
+                                                handleReferencePhotoClick(index)
                                             }
                                             key={obj.previewUrl}
                                             src={obj.previewUrl}
@@ -90,7 +120,7 @@ export default ({
                             </div>
                         </>
                     ) : (
-                        <>
+                        <div>
                             <span>얼마나 이후에 촬영했나요?</span>
                             <input
                                 type="number"
@@ -104,8 +134,14 @@ export default ({
                                             : null
                                     )
                                 }
-                            />
-                        </>
+                            />{" "}
+                            분
+                            <button
+                                onClick={() => setIsLocationSearching(true)}
+                            >
+                                장소 고르기
+                            </button>
+                        </div>
                     )}
                 </div>
             );
