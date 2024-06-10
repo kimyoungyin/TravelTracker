@@ -15,3 +15,4 @@
 
 -   [ExifReader](https://github.com/mattiasw/ExifReader)
 -   [browser-image-compression](https://www.npmjs.com/package/browser-image-compression)
+-   [@vis.gl/react-google-maps](https://www.npmjs.com/package/@vis.gl/react-google-maps)
