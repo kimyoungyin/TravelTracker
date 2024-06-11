@@ -1,8 +1,9 @@
 "use client";
 
+import PinMovableMap from "@/components/Upload/PinMovableMap";
 import { PhotoWithExif } from "@/components/Upload/Steps";
-import { APIProvider, AdvancedMarker, Map } from "@vis.gl/react-google-maps";
-import { useEffect, useState } from "react";
+import { APIProvider } from "@vis.gl/react-google-maps";
+import { useState } from "react";
 
 export default ({
     photosWithExif,
@@ -16,24 +17,15 @@ export default ({
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [prevPhotoIndex, setPrevPhotoIndex] = useState<number | null>(null);
     const [metaValues, setMetaValues] = useState<{
-        gapMin: string;
-        latitude: number;
-        longtitude: number;
-    } | null>(null);
+        gapMin: number;
+        lat: number;
+        lng: number;
+    }>({ gapMin: 0, lat: 0, lng: 0 });
     const [searchValue, setSearchValue] = useState("");
     const [isLocationSearching, setIsLocationSearching] = useState(false);
-    const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 });
-
-    const handleReferencePhotoClick = (index: number) => {
-        setPrevPhotoIndex(index);
-        setCurrentPosition({
-            lat: photosWithExif[index].latitude!,
-            lng: photosWithExif[index].longtitude!,
-        });
-    };
-
+    console.log(metaValues.lat, metaValues.lng);
     if (editingIndex !== null) {
-        if (isLocationSearching) {
+        if (isLocationSearching && prevPhotoIndex !== null) {
             return (
                 <>
                     <h3>사진 위치 고르기</h3>
@@ -45,6 +37,7 @@ export default ({
                         />
                         <div className="flex-1">
                             <h2>어디서 사진을 찍으셨나요?</h2>
+                            <span>이전 사진 위치는 띄워놓았어요</span>
                             <input
                                 type="text"
                                 value={searchValue}
@@ -57,26 +50,64 @@ export default ({
                                     process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!
                                 }
                             >
-                                <div className="w-[400px] h-[400px]">
-                                    <Map
-                                        zoom={15}
-                                        center={currentPosition}
-                                        mapId={
-                                            process.env
-                                                .NEXT_PUBLIC_GOOGLE_MAP_SEARCH_ID
-                                        }
-                                    >
-                                        <AdvancedMarker
-                                            position={currentPosition}
-                                        />
-                                    </Map>
-                                </div>
+                                <PinMovableMap
+                                    prevPhotoObj={
+                                        photosWithExif[prevPhotoIndex]
+                                    }
+                                    currPhotoObj={
+                                        photosWithoutExif[editingIndex]
+                                    }
+                                    currPhotoPosition={metaValues}
+                                    onChangeCurrPhotoPosition={(ev) =>
+                                        setMetaValues((prev) => {
+                                            if (
+                                                !ev.detail.latLng?.lat ||
+                                                !ev.detail.latLng.lng
+                                            )
+                                                return prev;
+
+                                            return {
+                                                ...prev,
+                                                lat: Number(
+                                                    ev.detail.latLng.lat.toFixed(
+                                                        6
+                                                    )
+                                                ),
+                                                lng: Number(
+                                                    ev.detail.latLng.lng.toFixed(
+                                                        6
+                                                    )
+                                                ),
+                                            };
+                                        })
+                                    }
+                                    onDragCurrPhotoPosition={(ev) => {
+                                        setMetaValues((prev) => {
+                                            if (
+                                                !ev.latLng?.lat ||
+                                                !ev.latLng.lng
+                                            )
+                                                return prev;
+                                            return {
+                                                ...prev,
+                                                lat: Number(
+                                                    ev.latLng.lat().toFixed(6)
+                                                ),
+                                                lng: Number(
+                                                    ev.latLng.lng().toFixed(6)
+                                                ),
+                                            };
+                                        });
+                                    }}
+                                />
                             </APIProvider>
                         </div>
                     </div>
-                    <button onClick={() => setIsLocationSearching(false)}>
-                        결정
-                    </button>
+                    {metaValues.lat !== 0 && metaValues.lng !== 0 && (
+                        <button onClick={() => setIsLocationSearching(false)}>
+                            결정
+                        </button>
+                    )}
                 </>
             );
         } else {
@@ -109,7 +140,7 @@ export default ({
                                     photosWithExif.map((obj, index) => (
                                         <img
                                             onClick={() =>
-                                                handleReferencePhotoClick(index)
+                                                setPrevPhotoIndex(index)
                                             }
                                             key={obj.previewUrl}
                                             src={obj.previewUrl}
@@ -124,23 +155,24 @@ export default ({
                             <span>얼마나 이후에 촬영했나요?</span>
                             <input
                                 type="number"
+                                min={0}
+                                value={metaValues.gapMin}
                                 onChange={(e) =>
-                                    setMetaValues((prev) =>
-                                        prev
-                                            ? {
-                                                  ...prev,
-                                                  gap: Number(e.target.value),
-                                              }
-                                            : null
-                                    )
+                                    setMetaValues({
+                                        gapMin: Number(e.target.value),
+                                        lat: 0,
+                                        lng: 0,
+                                    })
                                 }
                             />{" "}
                             분
-                            <button
-                                onClick={() => setIsLocationSearching(true)}
-                            >
-                                장소 고르기
-                            </button>
+                            {metaValues.gapMin > 0 && (
+                                <button
+                                    onClick={() => setIsLocationSearching(true)}
+                                >
+                                    장소 고르기
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
