@@ -9,10 +9,15 @@ export default ({
     photosWithExif,
     photosWithoutExif,
     toPrevStep,
+    onSubmit,
 }: {
     photosWithExif: PhotoWithExif[];
     photosWithoutExif: PhotoWithExif[];
     toPrevStep: () => void;
+    onSubmit: (
+        idx: number,
+        metaValues: { date: Date; lat: number; lng: number }
+    ) => void;
 }) => {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [prevPhotoIndex, setPrevPhotoIndex] = useState<number | null>(null);
@@ -21,9 +26,17 @@ export default ({
         lat: number;
         lng: number;
     }>({ gapMin: 0, lat: 0, lng: 0 });
-    const [searchValue, setSearchValue] = useState("");
     const [isLocationSearching, setIsLocationSearching] = useState(false);
-    console.log(metaValues.lat, metaValues.lng);
+
+    const calculateMetadataAndSubmit = () => {
+        if (prevPhotoIndex === null || editingIndex === null) return;
+        const date = photosWithExif[prevPhotoIndex].time as Date;
+        const { gapMin, lat, lng } = metaValues;
+        date.setMinutes(date.getMinutes() + gapMin);
+
+        onSubmit(editingIndex, { date, lat, lng });
+    };
+
     if (editingIndex !== null) {
         if (isLocationSearching && prevPhotoIndex !== null) {
             return (
@@ -37,13 +50,10 @@ export default ({
                         />
                         <div className="flex-1">
                             <h2>어디서 사진을 찍으셨나요?</h2>
-                            <span>이전 사진 위치는 띄워놓았어요</span>
-                            <input
-                                type="text"
-                                value={searchValue}
-                                onChange={(e) => setSearchValue(e.target.value)}
-                            />
-                            <button>검색</button>
+                            <span>
+                                이전 사진 찍은 위치와 비교해서 지도를
+                                클릭해보세요
+                            </span>
                             {/* 지도 위치 */}
                             <APIProvider
                                 apiKey={
@@ -104,7 +114,7 @@ export default ({
                         </div>
                     </div>
                     {metaValues.lat !== 0 && metaValues.lng !== 0 && (
-                        <button onClick={() => setIsLocationSearching(false)}>
+                        <button onClick={calculateMetadataAndSubmit}>
                             결정
                         </button>
                     )}
