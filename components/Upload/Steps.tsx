@@ -110,6 +110,27 @@ export default () => {
         if (photos.length > 0) setStep("meta");
     };
 
+    const handleInsertMetadata = (
+        idx: number,
+        metaValues: { date: Date; lat: number; lng: number }
+    ) => {
+        setFormValues((prev) => {
+            const newWithExif = [...prev.photosWithExif];
+            newWithExif.push({
+                ...prev.photosWithoutExif[idx],
+                latitude: metaValues.lat,
+                longtitude: metaValues.lng,
+                time: metaValues.date,
+            });
+            const newWithoutExif = prev.photosWithoutExif.slice(idx, 1);
+            return {
+                photosWithExif: newWithExif,
+                photosWithoutExif: newWithoutExif,
+                title: prev.title,
+            };
+        });
+    };
+
     if (step === "title")
         return (
             <Title
@@ -142,6 +163,7 @@ export default () => {
             photosWithoutExif={formValues.photosWithoutExif}
             photosWithExif={formValues.photosWithExif}
             toPrevStep={() => setStep("photo")}
+            onSubmit={handleInsertMetadata}
         />
     );
 };
