@@ -3,6 +3,7 @@
 import { ChangeEvent } from "react";
 
 interface Props {
+    currentTitle: string;
     toPrevStep: () => void;
     onChange: (event: ChangeEvent<HTMLInputElement>) => void;
     isLoading: boolean;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default ({
+    currentTitle,
     toPrevStep,
     onChange,
     isLoading,
@@ -17,6 +19,7 @@ export default ({
 }: Props) => {
     return (
         <div>
+            <h2>{currentTitle}</h2>
             <button onClick={toPrevStep}>이전 단계</button>
             <label htmlFor="photos">
                 {isLoading

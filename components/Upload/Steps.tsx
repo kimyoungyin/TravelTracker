@@ -148,6 +148,7 @@ export default () => {
     if (step === "photo")
         return (
             <Photo
+                currentTitle={formValues.title}
                 currentPhotoCount={
                     formValues.photosWithExif.length +
                     formValues.photosWithoutExif.length
