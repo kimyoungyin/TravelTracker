@@ -9,15 +9,17 @@ export default ({
     photosWithExif,
     photosWithoutExif,
     toPrevStep,
+    onMetadataSubmit,
     onSubmit,
 }: {
     photosWithExif: PhotoWithExif[];
     photosWithoutExif: PhotoWithExif[];
     toPrevStep: () => void;
-    onSubmit: (
+    onMetadataSubmit: (
         idx: number,
         metaValues: { date: Date; lat: number; lng: number }
     ) => void;
+    onSubmit: () => Promise<void>;
 }) => {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [prevPhotoIndex, setPrevPhotoIndex] = useState<number | null>(null);
@@ -34,7 +36,7 @@ export default ({
         const { gapMin, lat, lng } = metaValues;
         date.setMinutes(date.getMinutes() + gapMin);
 
-        onSubmit(editingIndex, { date, lat, lng });
+        onMetadataSubmit(editingIndex, { date, lat, lng });
     };
 
     if (editingIndex !== null) {
@@ -203,17 +205,23 @@ export default ({
                     />
                 ))}
             </div>
-            <h2>메타 데이터 없음</h2>
-            <div className="grid gap-4 grid-cols-3 md:grid-cols-4">
-                {photosWithoutExif.map((obj, index) => (
-                    <img
-                        onClick={() => setEditingIndex(index)}
-                        key={obj.previewUrl}
-                        src={obj.previewUrl}
-                        className="aspect-square object-cover border rounded border-5 border-red-600 cursor-pointer opacity-50"
-                    />
-                ))}
-            </div>
+            {photosWithoutExif.length === 0 ? (
+                <button onClick={onSubmit}>여행 생성하기</button>
+            ) : (
+                <>
+                    <h2>메타 데이터 없음</h2>
+                    <div className="grid gap-4 grid-cols-3 md:grid-cols-4">
+                        {photosWithoutExif.map((obj, index) => (
+                            <img
+                                onClick={() => setEditingIndex(index)}
+                                key={obj.previewUrl}
+                                src={obj.previewUrl}
+                                className="aspect-square object-cover border rounded border-5 border-red-600 cursor-pointer opacity-50"
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 };

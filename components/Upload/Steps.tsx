@@ -7,7 +7,6 @@ import Meta from "@/components/Upload/Meta";
 import ExifReader from "exifreader";
 import convertExifDateToDateObj from "@/utils/metadata/convertExifDateToDateObj";
 import convertExifGPSToFixedObj from "@/utils/metadata/convertExifGPSToFixedObj";
-import imageCompression from "browser-image-compression";
 
 type Step = "title" | "photo" | "meta";
 
@@ -131,6 +130,8 @@ export default () => {
         });
     };
 
+    const createTravel = async () => {};
+
     if (step === "title")
         return (
             <Title
@@ -164,7 +165,8 @@ export default () => {
             photosWithoutExif={formValues.photosWithoutExif}
             photosWithExif={formValues.photosWithExif}
             toPrevStep={() => setStep("photo")}
-            onSubmit={handleInsertMetadata}
+            onMetadataSubmit={handleInsertMetadata}
+            onSubmit={createTravel}
         />
     );
 };
